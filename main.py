@@ -52,11 +52,27 @@ class Firework:
         # Check if firework is finished
         return self.state != 'sparkling' or random.random() > 0.05  # Small chance to remove sparkle
 
+# Function to draw a simple city skyline at the bottom of the screen
+def draw_cityline(stdscr):
+    height, width = stdscr.getmaxyx()
+    city_height = 5  # Height of the cityline from the bottom
+
+    for x in range(0, width, random.randint(5, 15)):  # Randomize building width
+        building_height = random.randint(2, city_height)  # Randomize building height
+        for y in range(height - 2, height - 2 - building_height, -1):
+            stdscr.addch(y, x, '|')  # Draw the building walls
+        stdscr.addch(height - 2 - building_height, x, '+')  # Draw the roof
+
+        # Add small roof tops to make it more varied
+        for roof_width in range(random.randint(1, 3)):
+            if x + roof_width < width:
+                stdscr.addch(height - 2 - building_height, x + roof_width, '-')
+
 # Main animation loop
 def firework_animation(stdscr):
     curses.curs_set(0)  # Hide the cursor
     stdscr.nodelay(True)  # Make getch() non-blocking
-    stdscr.timeout(30)  # Set a timeout of 100ms for getch()
+    stdscr.timeout(40)  # Set a timeout of 100ms for getch()
 
     # Use default terminal colors
     curses.use_default_colors()
@@ -64,21 +80,28 @@ def firework_animation(stdscr):
     fireworks = []
     height, width = stdscr.getmaxyx()
 
+    # Draw the cityline once
+    draw_cityline(stdscr)
+    stdscr.refresh()
+
     # Run the fireworks animation continuously until a key is pressed
     while True:
-        stdscr.clear()
+        # Clear the screen only in the dynamic area (above the cityline)
+        for y in range(height - 7):  # Leave space for the cityline
+            stdscr.move(y, 0)
+            stdscr.clrtoeol()
 
         # Launch new fireworks randomly
         if len(fireworks) < 5 and random.random() < 0.2:  # Limit to 5 concurrent fireworks
             x = random.randint(2, width - 3)
-            y = height - 2
+            y = height - 8  # Launch just above the cityline
             fireworks.append(Firework(x, y))
 
         # Update each firework
         fireworks = [fw for fw in fireworks if fw.update(stdscr)]
 
         stdscr.refresh()
-        
+
         # Exit if any key is pressed
         if stdscr.getch() != -1:
             break
