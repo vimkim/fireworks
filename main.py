@@ -72,7 +72,7 @@ def draw_cityline(stdscr):
 def firework_animation(stdscr):
     curses.curs_set(0)  # Hide the cursor
     stdscr.nodelay(True)  # Make getch() non-blocking
-    stdscr.timeout(40)  # Set a timeout of 100ms for getch()
+    stdscr.timeout(100)  # Set a timeout of 100ms for getch()
 
     # Use default terminal colors
     curses.use_default_colors()
